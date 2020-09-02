@@ -2,13 +2,16 @@ from django.urls import path
 
 from rest_framework.authtoken.views import obtain_auth_token
 
-from .views import (UserApiView,
-                    UserProfileUpdateApiVIew,
-                    UserProfileApiVIew,
+from .views import (FollowApiView,
                     TweetCreateApiView,
-                    TweetTimelineListApiView,
+                    TweetFullTextSearchApiView,
                     TweetListApiView,
-                    FollowApiView)
+                    TweetTimelineListApiView,
+                    UserApiView,
+                    UserProfileApiVIew,
+                    UserProfileUpdateApiVIew,
+                    UserSearchApiView,
+                    )
 
 
 urlpatterns = [
@@ -22,4 +25,7 @@ urlpatterns = [
     path('tweets/timeline/', TweetTimelineListApiView.as_view(), name='tweeets_timeline'),
     
     path('user/<int:pk>/follow/', FollowApiView.as_view(), name='follow'),
+
+    path('users/search/', UserSearchApiView.as_view(), name='search'),
+    path('tweets/search/', TweetFullTextSearchApiView.as_view(), name='tweets_full_search')
 ]
