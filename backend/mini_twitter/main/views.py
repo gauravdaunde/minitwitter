@@ -6,12 +6,13 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.exceptions import ParseError, ValidationError
 
-from .models import UserProfile, Tweet, Follow
-from .serializers import (UserSerializer,
-                          UserProfileSerializer,
-                          TweetSerializer,
-                          FollowSerializer)
+from .models import Follow, Tweet, UserProfile
 from .permissions import IsOwner
+from .serializers import ( TweetSerializer,
+                           FollowSerializer,
+                           UserSerializer,
+                           UserProfileSerializer,
+                            )
 
 
 
@@ -26,13 +27,20 @@ class UserApiView(generics.CreateAPIView):
         #assigning serializer data fields to variables
         first_name = serializer.data.get('first_name',None)
         last_name = serializer.data.get('last_name', None)
+        username = serializer.data['username']
 
-        #checking for blank and None fields
+        # checking for blank and None fields
         if not (first_name and last_name):
-            raise ParseError('first name and last name must not be null')
+            raise ValidationError('first name and last name must not be null')
+        # validating and allowing only alphabetical characters
+        if not (first_name.isalpha() and last_name.isalpha()):
+            raise ValidationError('first name and last name must have alphabetical characters only')
+        # validating and allowing only _ and . in username field
+        if not username.replace('_', '').replace('.', '').isalpha():
+            raise ValidationError('only _ and . is allowed in username')
 
         #creating new user instance
-        user = User.objects.create_user(username=serializer.data['username'],
+        user = User.objects.create_user(username=username,
                                         password=serializer.data['password'],
                                         first_name = first_name,
                                         last_name = last_name
@@ -122,7 +130,8 @@ class TweetTimelineListApiView(generics.ListAPIView):
 
     def get_queryset(self):
         #returning all tweets instances created by users that logged in user follows
-        return self.queryset.filter(Q(user=self.request.user) | Q(user__following_set__follower=self.request.user))
+        return self.queryset.filter(Q(user=self.request.user) |
+                                    Q(user__following_set__follower=self.request.user))
 
 
 class FollowApiView(generics.CreateAPIView,generics.DestroyAPIView):
@@ -156,3 +165,40 @@ class FollowApiView(generics.CreateAPIView,generics.DestroyAPIView):
         #returning matched follow instance
         return get_object_or_404(Follow,follower=self.request.user, following=following_user)
 
+
+class UserSearchApiView(generics.ListAPIView):
+    """
+    full text search ApiView
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        # fetching q field from query_params
+        search_query = self.request.query_params.get('q', None)
+
+        #returning those user instance queryset which contains search_query string in username or first_name or last_name fields
+        return self.queryset.filter(Q(username__contains=search_query) |
+                                    Q(first_name__contains=search_query) |
+                                    Q(last_name__contains=search_query))
+
+
+class TweetFullTextSearchApiView(generics.ListAPIView):
+    """
+    full text search ApiView
+    """
+    queryset = Tweet.objects.all()
+    serializer_class = TweetSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # fetching q field from query_params
+        search_query = self.request.query_params.get('q', None)
+
+        # returning those tweet instance queryset which contains search_query string in content or
+        # user.username or user.first_name or user.last_name fields
+        return self.queryset.filter(Q(user__username__contains=search_query) |
+                                    Q(user__first_name__contains=search_query) |
+                                    Q(user__last_name__contains=search_query) |
+                                    Q(content__contains=search_query))
