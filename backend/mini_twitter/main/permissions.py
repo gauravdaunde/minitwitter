@@ -1,8 +1,10 @@
-from rest_framework.permissions import BasePermission
+from rest_framework import permissions
 
-
-class IsOwner(BasePermission):
+class IsOwner(permissions.BasePermission):
     message = "You don't have permission to do this."
 
     def has_object_permission(self,request,view,object):
-        return self.id ==request.user.id
+
+        if request.method in permissions.SAFE_METHODS:
+            return  True
+        return object.user == request.user
