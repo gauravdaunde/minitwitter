@@ -4,7 +4,8 @@ from django.db.models import Q
 
 from rest_framework import generics
 from rest_framework.permissions import AllowAny,IsAuthenticated
-from rest_framework.exceptions import ParseError, ValidationError
+from rest_framework.exceptions import ValidationError
+from rest_framework import filters
 
 from .models import Follow, Tweet, UserProfile
 from .permissions import IsOwner
@@ -16,12 +17,15 @@ from .serializers import ( TweetSerializer,
 
 
 
-class UserCreateApiView(generics.CreateAPIView):
+class UserListCreateApiView(generics.ListCreateAPIView):
     """
     ApiVIew to register new users
     """
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
+    filter_backends = (filters.SearchFilter,)
+    queryset = User.objects.all()
+    search_fields = ('username','first_name','last_name')
 
 
 
@@ -32,6 +36,18 @@ class UserProfileRetrieveUpdateApiVIew(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = (IsAuthenticated,IsOwner)
     queryset = UserProfile.objects.all()
+    
+    def get_object(self):
+        # fetching id from query params
+        user_id = self.request.query_params.get('id', None)
+
+        #if user_id not none then returning profile instance of user which having id as user_id
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+            return UserProfile.objects.get(user=user)
+
+        #otherwise returning profile instance of current logged in user
+        return UserProfile.objects.get(user=self.request.user)
 
 
 
@@ -42,17 +58,30 @@ class TweetListCreateApiView(generics.ListCreateAPIView):
     """
     serializer_class = TweetSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Tweet.objects.all()
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'content')
 
     def perform_create(self, serializer):
         #saving newly created tweet instance to DB
         serializer.save(user=self.request.user)
 
+
+class RetrieveUserTweetsApiView(generics.ListAPIView):
+    serializer_class = TweetSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = 'user_id'
+
+
     def get_queryset(self):
         # fetching pk from kwargs
-        pk = self.kwargs.get('pk')
+        user_id = self.kwargs.get('user_id')
 
-        # returning all tweets instances created by user of this pk
-        return get_object_or_404(User,pk=pk).tweet_set.all()
+        # returning all tweets instances created by user
+        user = get_object_or_404(User,id=user_id)
+        return user.tweet_set.all()
+
 
 
 class TweetTimelineListApiView(generics.ListAPIView):
@@ -99,49 +128,3 @@ class FollowDestroyApiView(generics.DestroyAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = Follow.objects.all()
 
-
-
-class UserSearchApiView(generics.ListAPIView):
-    """
-    ApiView to search users
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def filter_queryset(self, queryset):
-        # fetching query field from query_params
-        search_query = self.request.query_params.get('query', None)
-
-        #validating for not None and empty
-        if not search_query:
-            raise ParseError('query not be empty or null.')
-
-        #returning those user instances in queryset which contains search_query string in username or first_name or last_name fields
-        return queryset.filter(Q(username__contains=search_query) |
-                                    Q(first_name__contains=search_query) |
-                                    Q(last_name__contains=search_query))
-
-
-class TweetFullTextSearchApiView(generics.ListAPIView):
-    """
-    tweet full text search ApiView
-    """
-    queryset = Tweet.objects.all()
-    serializer_class = TweetSerializer
-    permission_classes = [IsAuthenticated]
-
-    def filter_queryset(self,queryset):
-        # fetching query field from query_params
-        search_query = self.request.query_params.get('query', None)
-
-        # validating for not None and empty
-        if not search_query:
-            raise ParseError('query not be null or empty.')
-
-        # returning those tweet instance queryset which contains search_query string in content or
-        # user.username or user.first_name or user.last_name fields
-        return queryset.filter(Q(user__username__contains=search_query) |
-                                    Q(user__first_name__contains=search_query) |
-                                    Q(user__last_name__contains=search_query) |
-                                    Q(content__contains=search_query))
