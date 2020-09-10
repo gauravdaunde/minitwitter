@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userprofile',
             name='profile_image',
-            field=models.ImageField(null=True, upload_to=main.models.image_path_rename),
+            field=models.ImageField(null=True, upload_to='profile-images'),
         ),
         migrations.AlterUniqueTogether(
             name='follow',
