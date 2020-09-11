@@ -192,4 +192,4 @@ class TweetLikeRetrieveDestroyApiView(RetrieveDestroyAPIView):
     """
     queryset = TweetLike.objects.all()
     serializer_class = TweetLikeSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwner)
