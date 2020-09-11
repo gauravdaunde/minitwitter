@@ -4,12 +4,6 @@ from django.dispatch import receiver
 
 
 
-@receiver(models.signals.post_save, sender=User)
-def user_created(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-
 class UserProfile(models.Model):
     """
     UserProfile model to store user's profile info
@@ -40,3 +34,17 @@ class Follow(models.Model):
 
     class Meta:
         unique_together = (('follower', 'following'))
+
+
+class TweetLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tweet = models.ForeignKey(Tweet, on_delete=models.CASCADE, related_name='likes')
+    
+    class Meta:
+        unique_together = (('user', 'tweet'),)
+
+
+@receiver(models.signals.post_save, sender=User)
+def user_created(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)

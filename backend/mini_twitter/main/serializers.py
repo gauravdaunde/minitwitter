@@ -6,6 +6,7 @@ from rest_framework import serializers
 from .models import (UserProfile,
                      Tweet,
                      Follow,
+                     TweetLike
                      )
 
 
@@ -52,10 +53,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class FollowSerializer(serializers.ModelSerializer):
     follower = UserSerializer(read_only=True)
     following = UserSerializer(read_only=True)
+    following_id = serializers.IntegerField(required=True)
 
     class Meta:
         model = Follow
-        fields = ['id', 'follower','following']
+        fields = ['id', 'follower','following', 'following_id']
 
 
 class TweetSerializer(serializers.ModelSerializer):
@@ -64,3 +66,12 @@ class TweetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tweet
         fields = ['id', 'user', 'content', 'created_on']
+
+
+class TweetLikeSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    tweet = TweetSerializer(read_only=True)
+
+    class Meta:
+        model = TweetLike
+        fields = ['id', 'user', 'tweet']
