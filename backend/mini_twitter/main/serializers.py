@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):#
     user = UserSerializer(read_only=True)
     followings = serializers.SerializerMethodField()
     followers = serializers.SerializerMethodField()

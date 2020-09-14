@@ -7,7 +7,6 @@ from rest_framework import filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (ListCreateAPIView,
                                      ListAPIView,
-                                     CreateAPIView,
                                      RetrieveDestroyAPIView,
                                      RetrieveUpdateAPIView,
                                      RetrieveUpdateDestroyAPIView,
@@ -18,7 +17,7 @@ from .models import (Follow,
                      UserProfile,
                      TweetLike
                      )
-from .permissions import IsOwner
+from .permissions import IsOwner, IsValidRequest
 from .serializers import (TweetSerializer,
                           FollowSerializer,
                           UserSerializer,
@@ -38,7 +37,6 @@ class UserListCreateApiView(ListCreateAPIView):
 
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username', 'first_name', 'last_name')
-
 
 
 class RetrieveLoggedInUserApiView(RetrieveAPIView):
@@ -71,15 +69,22 @@ class TweetListCreateApiView(ListCreateAPIView):
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
     permission_classes = (IsAuthenticated,)
-    lookup_field = 'user_id'
 
     def perform_create(self, serializer):
+        if self.kwargs.get('user_id') != self.request.user.id:
+            raise ValidationError(detail="you do not have permission to do this.")
         # saving newly created tweet instance to DB
         serializer.save(user=self.request.user)
 
     def filter_queryset(self, queryset):
-        # returning all queryset of tweets instances created by user_id
-        return queryset.filter(user_id=self.kwargs.get('user_id'))
+        list_query = self.request.query_params.get('list', None)
+        if list_query:
+            if list_query == 'personal':
+                # returning all queryset of tweets instances created by user_id
+                return queryset.filter(user_id=self.kwargs.get('user_id'))
+            elif list_query == 'timeline':
+                # returning queryset of tweets instances created by all users that followed by logged in user
+                return queryset.filter(Q(user__following_set__follower=self.request.user) |  Q(user_id=self.request.user)).distinct()
 
 
 
@@ -89,23 +94,7 @@ class TweetRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
     """
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
-    permission_classes = (IsAuthenticated, IsOwner)
-
-
-
-class TweetTimelineListApiView(ListAPIView):
-    """
-    ApiView to get timeline tweets of logged in user
-    """
-    serializer_class = TweetSerializer
-    permission_classes = (IsAuthenticated,)
-    queryset = Tweet.objects.all()
-
-
-    def filter_queryset(self, queryset):
-        # returning queryset of tweets instances created by all users that followed by logged in user
-        return queryset.filter(Q(user=self.request.user) | Q(user__following_set__follower=self.request.user))
-
+    permission_classes = (IsAuthenticated, IsOwner, IsValidRequest )
 
 
 class TweetSearchListApiView(ListAPIView):
@@ -131,29 +120,24 @@ class FollowingsListCreateApiView(ListCreateAPIView):
 
 
     def perform_create(self, serializer):
+        if self.kwargs.get('user_id') == self.request.user.id:
+            raise ValidationError("you can't follow yourself.")
+
         # saving serializer, exception is handled for duplicate instances
         try:
             serializer.save(follower=self.request.user)
         except:
-            raise IntegrityError("you are already following this user.")
+            raise ValidationError("you are already following this user.")
 
     def filter_queryset(self, queryset):
-        #filtering and returning queryset, of follower_id=user_id
-        return queryset.filter(follower_id=self.kwargs.get('user_id'))
-
-
-
-class FollowersListApiView(ListAPIView):
-    """
-        ApiView to get followers list of any user
-    """
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def filter_queryset(self, queryset):
-        # filtering and returning queryset, of following_id=user_id
-        return queryset.filter(following_id=self.kwargs.get('user_id'))
+        list_query = self.request.query_params.get('list', None)
+        if list_query:
+            if list_query == 'followers':
+                # filtering and returning queryset, of following_id=user_id
+                return queryset.filter(following_id=self.kwargs.get('user_id'))
+            elif list_query == 'followings':
+                #filtering and returning queryset, of follower_id=user_id
+                return queryset.filter(follower_id=self.kwargs.get('user_id'))
 
 
 
@@ -163,7 +147,7 @@ class FollowingRetrieveDestroyApiView(RetrieveDestroyAPIView):
     """
     queryset = Follow.objects.all()
     serializer_class = FollowSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwner, IsValidRequest)
 
 
 
@@ -176,7 +160,7 @@ class TweetLikeListCreateApiView(ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
     
     def filter_queryset(self, queryset):
-        queryset.filter(tweet_id=self.kwargs['tweet_id'])
+        return queryset.filter(tweet_id=self.kwargs['tweet_id'])
     
     def perform_create(self, serializer):
         try:
