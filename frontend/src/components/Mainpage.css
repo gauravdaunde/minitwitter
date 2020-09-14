@@ -1,0 +1,147 @@
+*{
+    margin:0;
+    padding:0;
+}
+.leftpart{
+    
+    margin-left:-7%;
+    /* background: orange; */
+    width:34%;
+    float: left;
+    padding: 10px;
+}
+.homebutton{
+    margin-top:16%;
+    margin-left:67%;
+    height:4.7rem;
+    width:30%;
+    font-size: 2em;
+    font-weight: bold;
+    background-color: #fff;
+    border:none;
+}
+.followersbutton{
+    margin-left:69%;
+    height:4.7rem;
+    width:34%;
+    font-size: 2em;
+    font-weight: bold;
+    background-color: #fff;
+    border:none;
+   
+}
+.followeusersbutton{
+    margin-left:70%;
+    height:4.7rem;
+    width:38%;
+    font-size: 2em;
+    font-weight: bold;
+    background-color: #fff;
+    border:none;
+    
+}
+
+.followingbutton{
+    margin-left:69%;
+    height:4.7rem;
+    width:34%;
+    font-size: 2em;
+    font-weight: bold;
+    background-color: #fff;
+    border:none;
+}
+.profilebutton{
+    margin-left:67.9%;
+    height:4.7rem;
+    width:30%;
+    font-size: 2em;
+    font-weight: bold;
+    background-color: #fff;
+    border:none;
+}
+
+
+
+.fa-home{
+    font-size:1em;
+    color: black;
+    padding-right:10%;
+}
+.fa-user-friends{
+    font-size:1em;
+    color: black;
+    padding-right:10%;
+}
+.fa-user-plus{
+    font-size:1em;
+    color: black;
+    padding-right:10%;
+}
+.fa-user{
+    font-size:1em;
+    color: black;
+    padding-right:14%;
+}
+.fa-list{
+ padding-right:6.5%;
+}
+.change:hover{
+    border-radius: 100px;
+  background-color:rgba(175, 230, 243,60%);
+  border:none;
+  color:#4ea7f0
+}
+.tweetbutton{
+    background-color:#4ea7f0  ;
+    color:white;
+    margin-top: 1.5rem;
+    width:36%;
+    height:4.7rem;
+    font-size:1.9em;
+    font-weight: bolder;
+    border-radius: 100px;
+    border:none;
+    margin-left:67%;
+   
+}
+.tweetbutton:hover{
+    background-color:#2E86C1  ;
+}
+.tweetbutton:active{
+    background-color:#2E86C1  ;
+}
+
+.rightpart{
+    border-left:.1px solid #D1DADF ;
+    border-right:.1px solid #D1DADF ;
+    /* padding-left:25%;
+    padding-top:2%; */
+    height:120vh;
+    /* background: blue; */
+    width:43%;
+    float: left;
+    /* padding: 10px; */
+    margin-left:5%;
+    
+}
+.BottomPart{
+    width:100%;
+    height:5px;
+    /* margin-top:%; */
+    border-bottom: .1px solid #D1DADF;
+    
+}
+.styleOfh2{
+    color:black;
+    text-align: center;
+    font-size: 3.5em;
+}
+.styleofimg{
+    text-align: center;
+}
+.twitter_logo{
+  margin-top:-17%;
+  margin-left:70%;
+    height:2%;
+    width:50%;
+}

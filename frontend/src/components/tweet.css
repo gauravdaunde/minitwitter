@@ -1,0 +1,126 @@
+.styleofinput{
+   /* margin-left:25%; */
+    margin-top:4%;
+    height:3.8em;
+    font-size:2em;
+    width:100%;
+    border:.5px solid #aaa;
+    border-radius:4px;
+    outline: none;
+    padding: 8px;
+    box-sizing: border-box;
+    transition:.3s;
+    font-weight: bold;
+}
+.tweet_tweetbtn{
+    float: right;
+    margin-right: 4%;
+    margin-top:0%;
+    width:13%;
+    height:4rem;
+    border-radius: 100px;
+    border:none;
+    background-color: #4ea7f0;
+    color:white;
+    font-weight: bold;
+    font-size: 1em;
+
+}
+.tweet_tweetbtn:hover{
+    background-color: #067CBE;
+    outline: none;
+    border:none;
+}
+.tweettextarea{
+    border-top: 0px solid white;
+    border-left: 0px solid white;
+    border-right:  0px solid white; 
+    border-bottom:  0px solid white; 
+    margin-top:2%;
+    margin-left:5%;
+    width:90%;
+    font-size: 2em;
+    height:12rem;
+}
+.tweettextarea:focus{
+    outline: none;
+}
+.rightpart2{
+    border-left:.1px solid gray;
+    border-right:.1px solid gray;
+    border-bottom: .1px solid gray;
+    /* padding-left:25%;
+    padding-top:2%; */
+    height:100%;
+    /* background: blue; */
+    width:43%;
+    float: left;
+    padding: 10px;
+    margin-left:2%;
+}
+.styleofinput:focus{
+    border-color: dodgerblue;
+    box-shadow: 0 0 8px 0 dodgerblue;
+}
+.styleofinput::placeholder{
+  text-align: center;
+    color:gray;
+    font-size:1.5em;
+}
+.tweetbutton2{
+    background-color:#4ea7f0  ;
+    color:white;
+    margin-top: 1.5rem;
+    width:30%;
+    height:4.7rem;
+    font-size:1.9em;
+    font-weight: bolder;
+    border-radius: 100px;
+    border:none;
+    /* margin-left:20%; */
+}
+.tweetbutton2:hover{
+    background-color:#2E86C1  ;
+}
+.displaybutton{
+    background-color:#21618C   ;
+    color:white;
+    margin-top: 1.5rem;
+    width:30%;
+    height:4.7rem;
+    font-size:1.7em;
+    font-weight: bolder;
+    border-radius: 100px;
+    border:none;
+    margin-left:5%;
+}
+.messagestyling{
+    color:red;
+    font-size:1.5em;
+    font-weight: bold;
+}
+.tweetstext1{
+    font-size:1.5em;
+    color:black;
+    font-weight: bold;
+}
+.outerdiv{
+    margin-top:5%;
+}
+.usernamestyle{
+    color:#4ea7f0;
+    font-size:1em;
+    font-weight: bold;
+}
+text{
+    color:gray;
+  margin-right:90%;
+}
+.hrstyle1{
+    margin-top:2%;
+    border:none;
+    background:gray;
+    height:2px;
+    width:102%;
+    margin-left:-1%;
+}

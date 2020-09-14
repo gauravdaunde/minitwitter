@@ -1,0 +1,110 @@
+.followbut{
+    /* margin-left:-25%; */
+    margin-top:15%;
+}
+.DF_username{
+    margin-left:2%;
+    font-size:1.5em;
+    font-weight: bold;
+    color:#8D9497 ;
+}
+.DE_hr{
+    /* background-color: black; */
+   margin-top:0%;
+}
+.DF_followingsbtn{
+    background-color: white;
+color: #4ea7f0;
+border-left: white;
+border-right:  white;
+border-top:  white;
+border-bottom: 2px solid #4ea7f0;
+padding: 5px;
+width: 40%;
+font-weight: bold;
+font-size:1.6em;
+}
+.DF_followingsbtn:hover{
+    background-color: rgba( 223, 237, 245 , 75%);
+}
+.DF_Followersbtn{
+    background-color: white;
+color: #4ea7f0;
+border-left: white;
+border-right:  white;
+border-top:  white;
+border-bottom: 2px solid #4ea7f0;
+margin-left: 20%;
+padding: 5px;
+width: 40%;
+font-weight: bold;
+font-size:1.6em;
+}
+.DF_Followersbtn:hover{
+    background-color: rgba( 223, 237, 245 , 75%);
+}
+.DF_firstName{
+    margin-left:12%;
+    font-size:1.9em;
+    font-weight: bold;
+}
+.DF_user_name{
+    margin-left: 12%;
+    font-size:1.5em;
+    color:#8D9497;
+    font-weight: bold;
+}
+.btnchange{
+   float: right;
+   margin-top:-7%;
+   height: 29%;
+   width:20%;
+   font-size: 1.7em;
+  margin-right:5%;
+  border-radius: 100px;
+  border:none;
+  font-weight: bold;
+  color:white;
+  background-color: #4ea7f0;
+
+}
+.styleoffirst_name{
+    margin-left:4%;
+    margin-top:5%;
+    float: left;
+    font-size:1.5em;
+    font-weight: bold;
+}
+.styleoflast_name{
+    float: right;
+    padding-left:5px;
+}
+.styleofusername{
+margin-left: -45%;
+}
+.styleof_hr{
+    margin-top:-1%;
+    border:none;
+    background:#D1DADF  ;
+    height:2px;
+    width:520%;
+    margin-left:-65%;
+}
+.unfollowstyle{
+    /* float: right; */
+    margin-left:350%;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-110%);
+    width:100%;
+    border-radius:100px;
+    border:none;
+    background-color: #4ea7f0;
+    color:white;
+    /* padding-bottom: 10%; */
+
+
+}
+.unfollowstyle:hover{
+    background-color: #2E86C1;
+}
