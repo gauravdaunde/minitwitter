@@ -3,10 +3,8 @@ from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
 
 from .views import (FollowingsListCreateApiView,
-                    FollowersListApiView,
                     FollowingRetrieveDestroyApiView,
                     TweetListCreateApiView,
-                    TweetTimelineListApiView,
                     TweetSearchListApiView,
                     UserListCreateApiView,
                     UserProfileRetrieveUpdateApiVIew,
@@ -25,13 +23,11 @@ urlpatterns = [
 
     path('users/<int:user_id>/tweets/', TweetListCreateApiView.as_view(), name='tweets'),
     path('users/<int:user_id>/tweets/<int:pk>', TweetRetrieveUpdateDestroyApiView.as_view(), name='tweet_get_update_delete'),
-    path('tweets/timeline/', TweetTimelineListApiView.as_view(), name='tweets_timeline'),
     path('tweets/', TweetSearchListApiView.as_view(), name='tweet_search'),
     path('tweets/<int:tweet_id>/likes/', TweetLikeListCreateApiView.as_view(), name='tweet_like'),
     path('tweets/<int:tweet_id>/likes/<int:pk>', TweetLikeRetrieveDestroyApiView.as_view(), name='tweet_like_destroy'),
 
     path('users/<int:user_id>/followings/', FollowingsListCreateApiView.as_view(), name='followings'),
-    path('users/<int:user_id>/followers/', FollowersListApiView.as_view(), name='followings'),
     path('users/<int:user_id>/followings/<int:pk>', FollowingRetrieveDestroyApiView.as_view(), name='unfollow'),
 ]
 
