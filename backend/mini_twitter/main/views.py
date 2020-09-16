@@ -120,7 +120,7 @@ class FollowingsListCreateApiView(ListCreateAPIView):
 
 
     def perform_create(self, serializer):
-        if self.kwargs.get('user_id') == self.request.user.id:
+        if self.request.data.get('following_id') == self.request.user.id:
             raise ValidationError("you can't follow yourself.")
 
         # saving serializer, exception is handled for duplicate instances
