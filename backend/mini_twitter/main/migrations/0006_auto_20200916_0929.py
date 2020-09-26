@@ -15,11 +15,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='tweet',
-            name='search_vector',
-            field=django.contrib.postgres.search.SearchVectorField(null=True),
-        ),
         migrations.AlterField(
             model_name='tweetlike',
             name='tweet',
