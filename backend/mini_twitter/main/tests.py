@@ -1,33 +1,60 @@
-from django.test import TestCase
+import json
+
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
-from rest_framework.test import APIRequestFactory
-
-from . import views
+from rest_framework.authtoken.models import Token
 
 
-class UserTest(APITestCase):
-    def setUp(self):
-        self.login_url = reverse('login')
-        self.data = {'username': 'luffy1', 'password':'luffy1'}
 
-        super().setUp()
+class UserRegistrationTestCase(APITestCase):
 
-    def test_usre_can_register(self):
-        register_url = reverse('user_register_list')
-        data = {'username':'luffy1', 'password':'luffy1','first_name':'Luffy D.','last_name':'Monkey'}
+    def test_user_can_register(self):
+        register_url = reverse('user_registration_list')
+        data = {'username':'Gaurav  ', 'password':'123456','first_name':'Gaurav','last_name':'Daunde'}
 
         response = self.client.post(register_url, data, format='json')
         self.assertEqual(response.status_code, 201)
+        
 
-    def test_user_can_login(self):
-        # self.client.login(username='luffy', password='luffy')
-        response = self.client.post(self.login_url, self.data, format='json')
+class UserProfileTestCase(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='Gaurav', password='123456')
+        self.token = Token.objects.create(user=self.user)
+        self.token_authentication()
+
+    def token_authentication(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token "+self.token.key)
+
+    def test_user_profile_retrieve(self):
+        response = self.client.get(reverse('user_profile', kwargs={'pk':self.user.id}))
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['user']['username'],'Gaurav')
 
-    def test_user_can_post_tweet(self):
+    def test_user_profile_update(self):
+        response = self.client.put(reverse('user_profile', kwargs={'pk': self.user.id}),
+                                     {'bio':'my bio'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['bio'],'my bio')
+
+class TweetTestCase(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='Gaurav', password='123456')
+        self.token = Token.objects.create(user=self.user)
+        self.token_authentication()
+
+    def token_authentication(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
+
+    def test_tweet_post(self):
         data = {'content': 'hello, world'}
-        self.client.login(username='msdhoni', password='msdhoni')
-        response = self.client.post('/tweets/1/', data, format='json')
+        response = self.client.post(reverse('tweets', kwargs={'user_id': self.user.id}), data, format='json')
         self.assertEqual(response.status_code, 201)
+
+    def test_tweet_update(self):#not working
+        response = self.client.patch(reverse('tweet_get_update_delete', kwargs={'user_id': self.user.id, 'pk':1}),
+                                     {'content': 'hello, world2'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['content'], 'hello, world2')
