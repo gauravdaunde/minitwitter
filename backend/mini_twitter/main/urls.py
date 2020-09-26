@@ -30,4 +30,3 @@ urlpatterns = [
     path('users/<int:user_id>/followings/', FollowingsListCreateApiView.as_view(), name='followings'),
     path('users/<int:user_id>/followings/<int:pk>', FollowingRetrieveDestroyApiView.as_view(), name='unfollow'),
 ]
-

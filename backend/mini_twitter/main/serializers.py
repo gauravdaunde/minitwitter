@@ -38,7 +38,6 @@ class UserProfileSerializer(serializers.ModelSerializer):#
     followings = serializers.SerializerMethodField()
     followers = serializers.SerializerMethodField()
 
-
     def get_followers(self, profile_obj):
         return profile_obj.user.following_set.all().count()
 
@@ -48,6 +47,7 @@ class UserProfileSerializer(serializers.ModelSerializer):#
     class Meta:
         model = UserProfile
         fields = ['user', 'bio','profile_image','followers','followings']
+
 
 
 class FollowSerializer(serializers.ModelSerializer):

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 
 
@@ -20,9 +22,11 @@ class Tweet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
+    content_search = SearchVectorField(null=True, )
     
     class Meta:
         ordering = ['-created_on']
+        indexes = [GinIndex(fields=['content_search'])]
 
 
 class Follow(models.Model):

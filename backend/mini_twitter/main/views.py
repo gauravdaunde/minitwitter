@@ -25,7 +25,7 @@ from .serializers import (TweetSerializer,
                           TweetLikeSerializer
                           )
 
-
+from rest_framework import viewsets
 
 class UserListCreateApiView(ListCreateAPIView):
     """
@@ -106,7 +106,7 @@ class TweetSearchListApiView(ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'content')
+    search_fields = ('content', 'user__username', 'user__first_name', 'user__last_name')
 
 
 
