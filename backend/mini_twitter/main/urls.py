@@ -15,6 +15,8 @@ from .views import (FollowingsListCreateApiView,
                     )
 
 
+
+
 urlpatterns = [
     path('users/', UserListCreateApiView.as_view(), name='user_registration_list'),
     path('user/login/', obtain_auth_token, name='login'),
