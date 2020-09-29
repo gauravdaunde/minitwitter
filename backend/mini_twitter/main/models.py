@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
-from django.contrib.postgres.search import SearchVectorField
-from django.contrib.postgres.indexes import GinIndex
 
 
 
