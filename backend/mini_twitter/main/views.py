@@ -25,7 +25,9 @@ from .serializers import (TweetSerializer,
                           TweetLikeSerializer
                           )
 
-from rest_framework import viewsets
+
+
+
 
 class UserListCreateApiView(ListCreateAPIView):
     """
@@ -41,7 +43,7 @@ class UserListCreateApiView(ListCreateAPIView):
 
 class RetrieveLoggedInUserApiView(RetrieveAPIView):
     """
-    ApiView to get current loggeed in user
+    ApiView to retrieve current loggeed in users info
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -54,7 +56,7 @@ class RetrieveLoggedInUserApiView(RetrieveAPIView):
 
 class UserProfileRetrieveUpdateApiVIew(RetrieveUpdateAPIView):
     """
-    ApiView to get or update userprofile instance
+    ApiView to retrieve or update userprofile instance
     """
     serializer_class = UserProfileSerializer
     permission_classes = (IsAuthenticated, IsOwner)
@@ -64,7 +66,7 @@ class UserProfileRetrieveUpdateApiVIew(RetrieveUpdateAPIView):
 
 class TweetListCreateApiView(ListCreateAPIView):
     """
-    ApiView to get and crate tweets
+    ApiView to get and create tweets
     """
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
@@ -78,13 +80,14 @@ class TweetListCreateApiView(ListCreateAPIView):
 
     def filter_queryset(self, queryset):
         list_query = self.request.query_params.get('list', None)
+        user_id = self.kwargs.get('user_id')
         if list_query:
             if list_query == 'personal':
                 # returning all queryset of tweets instances created by user_id
-                return queryset.filter(user_id=self.kwargs.get('user_id'))
+                return queryset.filter(user_id=user_id)
             elif list_query == 'timeline':
                 # returning queryset of tweets instances created by all users that followed by logged in user
-                return queryset.filter(Q(user__following_set__follower=self.request.user) |  Q(user_id=self.request.user)).distinct()
+                return queryset.filter(Q(user__following_set__follower=user_id) |  Q(user_id=user_id)).distinct()
 
 
 
@@ -99,7 +102,7 @@ class TweetRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
 
 class TweetSearchListApiView(ListAPIView):
     """
-    ApiView to get and crate tweets
+    ApiView to search tweets with content and user data
     """
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
@@ -112,7 +115,7 @@ class TweetSearchListApiView(ListAPIView):
 
 class FollowingsListCreateApiView(ListCreateAPIView):
     """
-        ApiView to create follow relation
+        ApiView to create and list follow relation
     """
     queryset = Follow.objects.all()
     serializer_class = FollowSerializer
@@ -145,7 +148,7 @@ class FollowingsListCreateApiView(ListCreateAPIView):
 
 class FollowingRetrieveDestroyApiView(RetrieveDestroyAPIView):
     """
-        ApiView to delete follow relation
+        ApiView to retrieve and delete follow relation
     """
     queryset = Follow.objects.all()
     serializer_class = FollowSerializer
@@ -174,7 +177,7 @@ class TweetLikeListCreateApiView(ListCreateAPIView):
 
 class TweetLikeRetrieveDestroyApiView(RetrieveDestroyAPIView):
     """
-        ApiView to delete and get like relation between user and tweet
+        ApiView to delete and get like relation
     """
     queryset = TweetLike.objects.all()
     serializer_class = TweetLikeSerializer
