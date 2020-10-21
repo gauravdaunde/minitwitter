@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
+    'django_extensions',
     'corsheaders',
 
     #rest apps
@@ -55,7 +57,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_PAGINATION_CLASS': 'main.pagination.PageNumberPagination'
 }
 
 MIDDLEWARE = [
@@ -97,7 +99,7 @@ WSGI_APPLICATION = 'mini_twitter.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'minitwitter',
+        'NAME': 'mini_twitter',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': 'localhost'

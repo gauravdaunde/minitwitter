@@ -1,9 +1,8 @@
 from django.contrib.auth.models import User
+from django.contrib.postgres.search import SearchVector
 from django.db.models import Q
-from django.db import IntegrityError
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (ListCreateAPIView,
                                      ListAPIView,
@@ -12,20 +11,18 @@ from rest_framework.generics import (ListCreateAPIView,
                                      RetrieveUpdateDestroyAPIView,
                                      RetrieveAPIView,)
 
-from .models import (Follow,
-                     Tweet,
-                     UserProfile,
-                     TweetLike
-                     )
+
 from .permissions import IsOwner, IsValidRequest
+from .pagination import PageNumberPagination
 from .serializers import (TweetSerializer,
-                          FollowSerializer,
+                          UserFollowRelationSerializer,
                           UserSerializer,
-                          UserProfileSerializer,
                           TweetLikeSerializer
                           )
-
-
+from .models import (UserFollowRelation,
+                     Tweet,
+                     TweetLike
+                     )
 
 
 
@@ -33,12 +30,15 @@ class UserListCreateApiView(ListCreateAPIView):
     """
     ApiVIew to register new users and to search users
     """
-    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
+    pagination_class = PageNumberPagination
 
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('username', 'first_name', 'last_name')
+    def get_queryset(self):
+        search_query = self.request.query_params.get('search', None)
+        return User.objects.annotate(search_data=SearchVector('username', 'first_name',
+                                                               'last_name')).filter(search_data=search_query)
+
 
 
 class RetrieveLoggedInUserApiView(RetrieveAPIView):
@@ -54,13 +54,13 @@ class RetrieveLoggedInUserApiView(RetrieveAPIView):
 
 
 
-class UserProfileRetrieveUpdateApiVIew(RetrieveUpdateAPIView):
+class UserRetrieveUpdateApiVIew(RetrieveUpdateAPIView):
     """
     ApiView to retrieve or update userprofile instance
     """
-    serializer_class = UserProfileSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsAuthenticated, IsOwner)
-    queryset = UserProfile.objects.all()
+    queryset = User.objects.all()
 
 
 
@@ -70,24 +70,23 @@ class TweetListCreateApiView(ListCreateAPIView):
     """
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsValidRequest)
+
 
     def perform_create(self, serializer):
-        if self.kwargs.get('user_id') != self.request.user.id:
-            raise ValidationError(detail="you do not have permission to do this.")
         # saving newly created tweet instance to DB
         serializer.save(user=self.request.user)
 
     def filter_queryset(self, queryset):
         list_query = self.request.query_params.get('list', None)
         user_id = self.kwargs.get('user_id')
-        if list_query:
-            if list_query == 'personal':
-                # returning all queryset of tweets instances created by user_id
-                return queryset.filter(user_id=user_id)
-            elif list_query == 'timeline':
-                # returning queryset of tweets instances created by all users that followed by logged in user
-                return queryset.filter(Q(user__following_set__follower=user_id) |  Q(user_id=user_id)).distinct()
+
+        if list_query == 'timeline':
+            # returning queryset of tweets instances created by all users that followed by logged in user
+            return queryset.filter(Q(user__followers__follower=user_id) | Q(user_id=user_id))
+        else:
+            # returning all queryset of tweets instances created by user_id
+            return queryset.filter(user_id=user_id)
 
 
 
@@ -108,8 +107,10 @@ class TweetSearchListApiView(ListAPIView):
     serializer_class = TweetSerializer
     permission_classes = (IsAuthenticated,)
 
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('content', 'user__username', 'user__first_name', 'user__last_name')
+    def get_queryset(self):
+        search_query = self.request.query_params.get('search', None)
+        return Tweet.objects.annotate(search_data=SearchVector('content', 'user__username', 'user__first_name',
+                                                          'user__last_name')).filter(search_data=search_query)
 
 
 
@@ -117,9 +118,9 @@ class FollowingsListCreateApiView(ListCreateAPIView):
     """
         ApiView to create and list follow relation
     """
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
-    permission_classes = (IsAuthenticated,)
+    queryset = UserFollowRelation.objects.all()
+    serializer_class = UserFollowRelationSerializer
+    permission_classes = (IsAuthenticated,IsValidRequest)
 
 
     def perform_create(self, serializer):
@@ -136,13 +137,13 @@ class FollowingsListCreateApiView(ListCreateAPIView):
 
     def filter_queryset(self, queryset):
         list_query = self.request.query_params.get('list', None)
-        if list_query:
-            if list_query == 'followers':
-                # filtering and returning queryset, of following_id=user_id
-                return queryset.filter(following_id=self.kwargs.get('user_id'))
-            elif list_query == 'followings':
-                #filtering and returning queryset, of follower_id=user_id
-                return queryset.filter(follower_id=self.kwargs.get('user_id'))
+
+        if list_query == 'followers':
+            #filtering and returning queryset, of follower_id=user_id
+            return queryset.filter(following_id=self.kwargs.get('user_id'))
+        else:
+            # filtering and returning queryset, of following_id=user_id
+            return queryset.filter(follower_id=self.kwargs.get('user_id'))
 
 
 
@@ -150,8 +151,8 @@ class FollowingRetrieveDestroyApiView(RetrieveDestroyAPIView):
     """
         ApiView to retrieve and delete follow relation
     """
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
+    queryset = UserFollowRelation.objects.all()
+    serializer_class = UserFollowRelationSerializer
     permission_classes = (IsAuthenticated, IsOwner, IsValidRequest)
 
 
