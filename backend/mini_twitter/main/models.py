@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 
 
@@ -8,7 +10,7 @@ class UserProfile(models.Model):
     """
     UserProfile model to store user's profile info
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', primary_key=True)
     profile_image = models.ImageField(upload_to='profile-images', null=True)
     bio = models.CharField(max_length=255)
 
@@ -23,14 +25,15 @@ class Tweet(models.Model):
     
     class Meta:
         ordering = ['-created_on']
+        indexes = [GinIndex(fields=['content']),]
 
 
-class Follow(models.Model):
+class UserFollowRelation(models.Model):
     """
     Follow model for user to have follow relation
     """
-    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follower_set')
-    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following_set')
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followings')
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
 
     class Meta:
         unique_together = (('follower', 'following'))

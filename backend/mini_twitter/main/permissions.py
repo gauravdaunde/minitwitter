@@ -1,5 +1,8 @@
+from django.contrib.auth.models import User
+
 from rest_framework import permissions
-from .models import Follow
+
+from .models import UserFollowRelation, Tweet
 
 
 
@@ -11,11 +14,12 @@ class IsOwner(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        if isinstance(object, Follow):
+        if isinstance(object, UserFollowRelation):
             return object.follower == request.user
+        elif isinstance(object, User):
+            return object == request.user
         else:
             return object.user == request.user
-
 
 
 class IsValidRequest(permissions.BasePermission):
